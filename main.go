@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Result struct {
@@ -29,20 +31,31 @@ type Result struct {
 }
 
 func main() {
+
+	app := fiber.New()
+
 	config := NewConfig()
 
 	allReposforUsersOrOrgs := getReposForUserOrOrgs(config)
 
+	fmt.Println("User or Orgs: ", config.UserName)
+	fmt.Println("Type of: ", config.TypeOf)
+	fmt.Println("Number of repos: ", len(allReposforUsersOrOrgs))
+	fmt.Println("List of repos: ", allReposforUsersOrOrgs)
+
 	url2Clone := Csvwriter(allReposforUsersOrOrgs)
 
 	cloneARepo(url2Clone)
+
+	app.Get("/download", downloadRepository)
+
+	defer log.Fatal(app.Listen(":3000"))
 
 }
 
 // it make a get on one of theses ( based on typeOf ): https://api.github.com/users/username/repos ou https://api.github.com/orgs/OrgsName/repos
 func getReposForUserOrOrgs(config Config) []Result {
 
-	// either an orgs, or a user
 	url := fmt.Sprintf("https://api.github.com/%s/%s/repos", config.TypeOf, config.UserName)
 
 	resp, err := http.Get(url)
