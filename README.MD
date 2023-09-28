@@ -11,7 +11,7 @@ git clone https://github.com/Alaeddine18/githubgolang.git
 
 cd githubgolang
 
-go run main.go
+go run *.go  
 
 
 
